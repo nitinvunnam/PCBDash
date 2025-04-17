@@ -10,12 +10,12 @@
 
 class BeamSprite {
     private:
-        uint8_t lane;
+        uint8_t tickDivider;
+        int16_t depth; // this goes from -120 to 120
     public:
+        uint8_t lane;
         const uint16_t * beam;
         uint16_t backBuff[20] = {0};
-        uint16_t heightOnScreen;
-        int16_t depth; // this goes from -120 to 120
         BeamSprite(uint8_t lane);
         void tick();
         uint16_t getBeamLeftSide(){return lane * 53;};

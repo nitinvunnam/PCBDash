@@ -42,6 +42,7 @@ SlidePot Sensor(1640,190); // copy calibration from Lab 7
 
 uint16_t buffer[6360] = {0};
 DashSprite dash = DashSprite(1);
+BeamSprite beam1 = BeamSprite(1);
 uint32_t spData;
 
 // games  engine runs at 30Hz
@@ -50,10 +51,11 @@ void TIMG12_IRQHandler(void){uint32_t pos,msg;
     GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
     GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
     dash.tick();
+    beam1.tick();
     spData = Sensor.In();
-    if (spData < 1200) dash.changeLane(0);
-    else if (spData < 2450 && spData > 1210) dash.changeLane(1);
-    else if (spData > 2460) dash.changeLane(2);
+    if (spData < 1000) dash.changeLane(0);
+    else if (spData < 2800 && spData > 1200) dash.changeLane(1);
+    else if (spData > 3000) dash.changeLane(2);
 // game engine goes here
     // 1) sample slide pot
     // 2) read input switches
@@ -184,9 +186,8 @@ int main(void){ // main2
   TimerG12_IntArm(2666666, 0);
   __enable_irq();
 
-  uint8_t beamLane = 1;
+  uint8_t beamLane = beam1.lane;
   bgToBuffer(beamLane);
-  BeamSprite beam1 = BeamSprite(1);
   uint8_t tmpLane;
   int8_t prev;
   for(i = 0;i<=240;i++){
@@ -209,8 +210,6 @@ int main(void){ // main2
     // else {
     //   ST7735_DrawBitmap(beam1.getBeamLeftSide() + 15, 8-beam1.depth, beam1.backBuff, 20, 1);
     // }
-    Clock_Delay1ms(20);
-    beam1.tick();
   }
   // ST7735_FillScreen(0x0000);   // set screen to black
   // ST7735_SetCursor(1, 1);
@@ -223,11 +222,28 @@ int main(void){ // main2
   // ST7735_OutUDec(1234);
   while(1){
     //check lane update flags, draw buffers based on position of runner, beam, etc.
-    uint8_t tmpLane = dash.getLane();
-    handleRunnerLeaveLane();
-    bgToBuffer(tmpLane);
-    runnerToBuffer();
-    ST7735_DrawBitmap(tmpLane*53, 127, buffer, 53, 120);
+    if (beam1.getBottomEdge() >= -140) {
+      tmpLane = dash.getLane();
+      bgToBuffer(beamLane);
+      DrawBeamToBuffer(beam1);
+      if (tmpLane == beamLane) {
+        runnerToBuffer();
+        ST7735_DrawBitmap(beam1.getBeamLeftSide(), 127, buffer, 53, 120);
+      } else {
+        ST7735_DrawBitmap(beam1.getBeamLeftSide(), 127, buffer, 53, 120);
+        bgToBuffer(tmpLane);
+        runnerToBuffer();
+        ST7735_DrawBitmap(tmpLane*53, 127, buffer, 53, 120);
+      }
+      if (dash.prevLane() != beamLane) handleRunnerLeaveLane();
+    } 
+    else {
+      uint8_t tmpLane = dash.getLane();
+      handleRunnerLeaveLane();
+      bgToBuffer(tmpLane);
+      runnerToBuffer();
+      ST7735_DrawBitmap(tmpLane*53, 127, buffer, 53, 120);
+    }
   }
 }
 
