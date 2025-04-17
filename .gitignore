@@ -1,0 +1,12 @@
+Debug/
+
+.settings/
+
+*.cmd
+
+.DS_Store
+
+.ccsproject
+.clangd
+.cproject
+.project

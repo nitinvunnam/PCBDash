@@ -1,3 +1,12 @@
+# Aditya Pulipaka
+# BMP to bitmap array converter.
+# Change FILENAME to your bmp file's name. BMP file should be in same directory as this python file.
+# pip install pillow and numpy
+# The IGNORE_X colors will not be accurate at first, just run it once on your file, then check output.txt
+# The number you see the most like at the beginning and the end will be the color at the bottom left and top right corners
+# which will most likely be your background. You can replace the IGNOREs with these number(s). If you don't need all of them, set them to the same number(s).
+
+
 from PIL import Image
 import numpy as np
 
@@ -88,9 +97,6 @@ with open("output.txt", "w") as f:
         print (str(0xF81F)+',', end='', file=f)
       else:
         print (str(j)+',', end='', file=f)
-    
-    # f.seek(f.tell() - 1)
-    # print("},", end='', file=f)
   
   f.seek(f.tell() - 1)
   print("}", end='', file=f)
