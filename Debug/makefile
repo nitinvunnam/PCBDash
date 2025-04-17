@@ -8,8 +8,10 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
+"./BeamSprite.o" \
 "./Clock.o" \
 "./DAC5.o" \
+"./DashSprite.o" \
 "./LED.o" \
 "./Lab9HMain.o" \
 "./LaunchPad.o" \
@@ -153,16 +155,16 @@ all: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 ECE319K_Lab9H.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 	@echo 'Building target: "$@"'
 	@echo 'Invoking: Arm Linker'
-	"/Applications/ti/ccs2000/ccs/tools/compiler/ti-cgt-armllvm_4.0.1.LTS/bin/tiarmclang" -march=thumbv6m -mcpu=cortex-m0plus -mfloat-abi=soft -mlittle-endian -mthumb -O0 -D__MSPM0G3507__ -gdwarf-3 -Wl,-m"ECE319K_Lab9H.map" -Wl,--heap_size=512 -Wl,--stack_size=512 -Wl,-i"/Users/adipu/Library/CloudStorage/OneDrive-TheUniversityofTexasatAustin/Freshman/319H/MSPM0_ValvanoWare/ECE319K_Lab9H/Debug/syscfg" -Wl,-i"/Applications/ti/ccs2000/ccs/tools/compiler/ti-cgt-armllvm_4.0.1.LTS/lib" -Wl,--diag_wrap=off -Wl,--display_error_number -Wl,--warn_sections -Wl,--xml_link_info="ECE319K_Lab9H_linkInfo.xml" -Wl,--rom_model -o "ECE319K_Lab9H.out" $(ORDERED_OBJS)
+	"/Applications/ti/ccs2000/ccs/tools/compiler/ti-cgt-armllvm_4.0.1.LTS/bin/tiarmclang" -march=thumbv6m -mcpu=cortex-m0plus -mfloat-abi=soft -mlittle-endian -mthumb -O0 -D__MSPM0G3507__ -gdwarf-3 -Wl,-m"ECE319K_Lab9H.map" -Wl,--heap_size=8192 -Wl,--stack_size=8192 -Wl,-i"/Users/adipu/Library/CloudStorage/OneDrive-TheUniversityofTexasatAustin/Freshman/319H/MSPM0_ValvanoWare/ECE319K_Lab9H/Debug/syscfg" -Wl,-i"/Applications/ti/ccs2000/ccs/tools/compiler/ti-cgt-armllvm_4.0.1.LTS/lib" -Wl,--diag_wrap=off -Wl,--display_error_number -Wl,--warn_sections -Wl,--xml_link_info="ECE319K_Lab9H_linkInfo.xml" -Wl,--rom_model -o "ECE319K_Lab9H.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: "$@"'
 	@echo ' '
 
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)
-	-$(RM) "Clock.o" "DAC5.o" "LED.o" "Lab9HMain.o" "LaunchPad.o" "SPI.o" "ST7735.o" "SlidePot.o" "SmallFont.o" "Sound.o" "Switch.o" "TExaS.o" "Timer.o" "images/pipedreams/PipeSound.o" "ticlang/startup_mspm0g3507_ticlang.o" 
+	-$(RM) "BeamSprite.o" "Clock.o" "DAC5.o" "DashSprite.o" "LED.o" "Lab9HMain.o" "LaunchPad.o" "SPI.o" "ST7735.o" "SlidePot.o" "SmallFont.o" "Sound.o" "Switch.o" "TExaS.o" "Timer.o" "images/pipedreams/PipeSound.o" "ticlang/startup_mspm0g3507_ticlang.o" 
 	-$(RM) "images/pipedreams/PipeSound.d" "ticlang/startup_mspm0g3507_ticlang.d" 
-	-$(RM) "Clock.d" "DAC5.d" "LED.d" "Lab9HMain.d" "LaunchPad.d" "SPI.d" "ST7735.d" "SlidePot.d" "SmallFont.d" "Sound.d" "Switch.d" "TExaS.d" "Timer.d" 
+	-$(RM) "BeamSprite.d" "Clock.d" "DAC5.d" "DashSprite.d" "LED.d" "Lab9HMain.d" "LaunchPad.d" "SPI.d" "ST7735.d" "SlidePot.d" "SmallFont.d" "Sound.d" "Switch.d" "TExaS.d" "Timer.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

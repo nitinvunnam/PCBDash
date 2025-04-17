@@ -4,8 +4,10 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../BeamSprite.cpp \
 /Users/adipu/Library/CloudStorage/OneDrive-TheUniversityofTexasatAustin/Freshman/319H/MSPM0_ValvanoWare/inc/Clock.cpp \
 /Users/adipu/Library/CloudStorage/OneDrive-TheUniversityofTexasatAustin/Freshman/319H/MSPM0_ValvanoWare/inc/DAC5.cpp \
+../DashSprite.cpp \
 ../LED.cpp \
 ../Lab9HMain.cpp \
 /Users/adipu/Library/CloudStorage/OneDrive-TheUniversityofTexasatAustin/Freshman/319H/MSPM0_ValvanoWare/inc/LaunchPad.cpp \
@@ -22,8 +24,10 @@ CMD_SRCS += \
 ../mspm0g3507.cmd 
 
 OBJS += \
+./BeamSprite.o \
 ./Clock.o \
 ./DAC5.o \
+./DashSprite.o \
 ./LED.o \
 ./Lab9HMain.o \
 ./LaunchPad.o \
@@ -37,8 +41,10 @@ OBJS += \
 ./Timer.o 
 
 CPP_DEPS += \
+./BeamSprite.d \
 ./Clock.d \
 ./DAC5.d \
+./DashSprite.d \
 ./LED.d \
 ./Lab9HMain.d \
 ./LaunchPad.d \
@@ -52,8 +58,10 @@ CPP_DEPS += \
 ./Timer.d 
 
 OBJS__QUOTED += \
+"BeamSprite.o" \
 "Clock.o" \
 "DAC5.o" \
+"DashSprite.o" \
 "LED.o" \
 "Lab9HMain.o" \
 "LaunchPad.o" \
@@ -67,8 +75,10 @@ OBJS__QUOTED += \
 "Timer.o" 
 
 CPP_DEPS__QUOTED += \
+"BeamSprite.d" \
 "Clock.d" \
 "DAC5.d" \
+"DashSprite.d" \
 "LED.d" \
 "Lab9HMain.d" \
 "LaunchPad.d" \
@@ -82,8 +92,10 @@ CPP_DEPS__QUOTED += \
 "Timer.d" 
 
 CPP_SRCS__QUOTED += \
+"../BeamSprite.cpp" \
 "/Users/adipu/Library/CloudStorage/OneDrive-TheUniversityofTexasatAustin/Freshman/319H/MSPM0_ValvanoWare/inc/Clock.cpp" \
 "/Users/adipu/Library/CloudStorage/OneDrive-TheUniversityofTexasatAustin/Freshman/319H/MSPM0_ValvanoWare/inc/DAC5.cpp" \
+"../DashSprite.cpp" \
 "../LED.cpp" \
 "../Lab9HMain.cpp" \
 "/Users/adipu/Library/CloudStorage/OneDrive-TheUniversityofTexasatAustin/Freshman/319H/MSPM0_ValvanoWare/inc/LaunchPad.cpp" \
