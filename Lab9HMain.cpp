@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "../inc/Clock.h"
-#include "../inc/LaunchPad.h"
 #include "../inc/TExaS.h"
 #include "../inc/SlidePot.h"
 #include "../inc/DAC5.h"
@@ -16,6 +15,7 @@
 #include "Switch.h"
 #include "Sound.h"
 #include "DashSprite.h"
+#include "Switches.h"
 
 extern "C" void __disable_irq(void);
 extern "C" void __enable_irq(void);
@@ -41,9 +41,11 @@ uint32_t Random(uint32_t n){
 SlidePot Sensor(1640,190); // copy calibration from Lab 7
 
 uint16_t buffer[6360] = {0};
-DashSprite dash = DashSprite(1);
-BeamSprite beam1 = BeamSprite(1);
+DashSprite dash;
+BeamSprite beam1;
+Switches UpDownPause;
 uint32_t spData;
+bool stopped, lock;
 
 // games  engine runs at 30Hz
 void TIMG12_IRQHandler(void){uint32_t pos,msg;
@@ -52,10 +54,15 @@ void TIMG12_IRQHandler(void){uint32_t pos,msg;
     GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
     dash.tick();
     beam1.tick();
+    if (dash.getLane() == beam1.lane && beam1.getBottomEdge() <= 20) {
+      dash.inBeam();
+    }
     spData = Sensor.In();
     if (spData < 1000) dash.changeLane(0);
     else if (spData < 2800 && spData > 1200) dash.changeLane(1);
     else if (spData > 3000) dash.changeLane(2);
+    UpDownPause.Poll();
+    if (UpDownPause.upPressed) dash.jump();
 // game engine goes here
     // 1) sample slide pot
     // 2) read input switches
@@ -171,18 +178,21 @@ void handleRunnerLeaveLane(void) {
 
 // use main2 to observe graphics
 int main(void){ // main2
+  srand(TIMG12->COUNTERREGS.CTR);
   TimerG12_Init();
   __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
   ST7735_InitPrintf();
   Sensor.Init();
+  UpDownPause.Init();
     //note: if you colors are weird, see different options for
     // ST7735_InitR(INITR_REDTAB); inside ST7735_InitPrintf()
   ST7735_SetRotation(3);
   ST7735_FillScreen(ST7735_BLACK);
   drawBg();
   uint16_t i;
+  dash.initHealth();
   TimerG12_IntArm(2666666, 0);
   __enable_irq();
 
@@ -190,40 +200,18 @@ int main(void){ // main2
   bgToBuffer(beamLane);
   uint8_t tmpLane;
   int8_t prev;
-  for(i = 0;i<=240;i++){
-    // if (i < 120) {
-      tmpLane = dash.getLane();
-      bgToBuffer(beamLane);
-      DrawBeamToBuffer(beam1);
-      if (tmpLane == beamLane) {
-        runnerToBuffer();
-        ST7735_DrawBitmap(beam1.getBeamLeftSide(), 127, buffer, 53, 120);
-      } else {
-        ST7735_DrawBitmap(beam1.getBeamLeftSide(), 127, buffer, 53, 120);
-        bgToBuffer(tmpLane);
-        runnerToBuffer();
-        ST7735_DrawBitmap(tmpLane*53, 127, buffer, 53, 120);
-      }
-      if (dash.prevLane() != beamLane) handleRunnerLeaveLane();
-    // }
-
-    // else {
-    //   ST7735_DrawBitmap(beam1.getBeamLeftSide() + 15, 8-beam1.depth, beam1.backBuff, 20, 1);
-    // }
-  }
-  // ST7735_FillScreen(0x0000);   // set screen to black
-  // ST7735_SetCursor(1, 1);
-  // ST7735_OutString((char *)"GAME OVER");
-  // ST7735_SetCursor(1, 2);
-  // ST7735_OutString((char *)"Nice try,");
-  // ST7735_SetCursor(1, 3);
-  // ST7735_OutString((char *)"Earthling!");
-  // ST7735_SetCursor(2, 4);
-  // ST7735_OutUDec(1234);
   while(1){
     //check lane update flags, draw buffers based on position of runner, beam, etc.
+    if(dash.dead) __disable_irq();
+    if (stopped) {
+      UpDownPause.Poll();
+    }
+    if (UpDownPause.pausePressed && !stopped && !lock) {__disable_irq(); stopped = true; lock = true;}
+    else if (UpDownPause.pausePressed && stopped && !lock) {__enable_irq(); stopped = false; lock = true;}
+    else if (!UpDownPause.pausePressed && lock) lock = false;
+    tmpLane = dash.getLane();
+    beamLane = beam1.lane;
     if (beam1.getBottomEdge() >= -140) {
-      tmpLane = dash.getLane();
       bgToBuffer(beamLane);
       DrawBeamToBuffer(beam1);
       if (tmpLane == beamLane) {
@@ -238,7 +226,6 @@ int main(void){ // main2
       if (dash.prevLane() != beamLane) handleRunnerLeaveLane();
     } 
     else {
-      uint8_t tmpLane = dash.getLane();
       handleRunnerLeaveLane();
       bgToBuffer(tmpLane);
       runnerToBuffer();

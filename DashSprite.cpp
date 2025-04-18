@@ -1,23 +1,74 @@
 #include "DashSprite.h"
 #include "Bitmaps.h"
+#include "Switches.h"
+#include "ti/devices/msp/m0p/mspm0g350x.h"
+#define fullHealth (1<<26)
+#define midHealth (1<<27)
+#define zeroHealth (1<<24)
 
-
-DashSprite::DashSprite(uint8_t lane) {
+DashSprite::DashSprite() {
     state = 0;
     timeInState = 0;
-    this->lane = lane;
+    lane = 0;
     image = DashRunLeftBMP;
     vertPos = 0;
+    dead = false;
+    win = false;
+    timeInMidHealth = 0;
+}
+
+void DashSprite::initHealth() {
+    health = 2;
+    IOMUX->SECCFG.PINCM[PA26INDEX] = 0x00000081;
+    IOMUX->SECCFG.PINCM[PA27INDEX] = 0x00000081;
+    IOMUX->SECCFG.PINCM[PB24INDEX] = 0x00000081;
+    GPIOA->DOE31_0 |= (fullHealth + midHealth);
+    GPIOB->DOE31_0 |= zeroHealth;
 }
 
 void DashSprite::tick() {
     if (state < 2) {
         if (timeInState == 10) {
             state = state ? 0 : 1;
-            if (state) image = DashRunRightBMP;
-            else image = DashRunLeftBMP;
             timeInState = 0;
-        } else timeInState++;
+        }
+        else timeInState++;
+        if (state && (health==2 || (timeInMidHealth/8)%2)) image = DashRunRightBMP;
+        else if (!state && (health==2 || (timeInMidHealth/8)%2)) image = DashRunLeftBMP;
+        else image = blankRunner;
+    }
+    else if (state == 2) {
+        if (timeInState > 30) {
+            state = 0;
+            timeInState = 0;
+            image = DashRunLeftBMP;
+        }
+        else {
+            vertPos = 30 - (((timeInState - 15)*(timeInState - 15))>>3);
+            timeInState++;
+        }
+    }
+
+    if (health == 1 && timeInMidHealth > 80) health--;
+    else if (health == 1 && timeInMidHealth == 0) health++;
+
+    if (!in_beam) timeInMidHealth--;
+
+    in_beam = false;
+
+    if (!health) dead = true;
+
+    if (health == 2) {
+        GPIOA->DOUTCLR31_0 |= midHealth;
+        GPIOB->DOUTCLR31_0 |= zeroHealth;
+        GPIOA->DOUTSET31_0 |= fullHealth;
+    } else if (health == 1) {
+        GPIOA->DOUTSET31_0 |= midHealth;
+        GPIOB->DOUTCLR31_0 |= zeroHealth;
+        GPIOA->DOUTCLR31_0 |= fullHealth;
+    } else {
+        GPIOA->DOUTCLR31_0 |= (fullHealth + midHealth);
+        GPIOB->DOUTSET31_0 |= zeroHealth;
     }
 }
 
@@ -40,4 +91,21 @@ uint8_t DashSprite::getLane() {
 
 void DashSprite::acknowledgeLaneChange() {
     checkPrevLane = false;
+}
+
+void DashSprite::jump() {
+    if (state != 2) {
+        state = 2;
+        timeInState = 0;
+        image = DashJumpBMP;
+    }
+}
+
+void DashSprite::inBeam() {
+    if (health == 2) {
+        health--;
+        timeInMidHealth = 40;
+    }
+    else if (health == 1) timeInMidHealth++;
+    in_beam = true;
 }

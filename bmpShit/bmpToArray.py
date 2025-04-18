@@ -2,17 +2,18 @@
 # BMP to bitmap array converter.
 # Change FILENAME to your bmp file's name. BMP file should be in same directory as this python file.
 # pip install pillow and numpy
-# The IGNORE_X colors will not be accurate at first, just run it once on your file, then check output.txt
+# The IGNORE_X colors will likely not be accurate at first, just run it once on your file, then check output.txt
 # The number you see the most like at the beginning and the end will be the color at the bottom left and top right corners
 # which will most likely be your background. You can replace the IGNOREs with these number(s). If you don't need all of them, set them to the same number(s).
-
+# Height and width of bitmap will be output to console in that order. Multiply these to get your array size.
+# output.txt will hold the array.
 
 from PIL import Image
 import numpy as np
 
-FILENAME = "Dash_run_Left.bmp"
+FILENAME = "IMG_0207.bmp"
 IGNORE_0 = 59294
-IGNORE_1 = 59295
+IGNORE_1 = 65535
 IGNORE_2 = 61343
 IGNORE_3 = 61342
 
