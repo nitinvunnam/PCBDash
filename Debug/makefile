@@ -10,6 +10,7 @@ GEN_CMDS__FLAG :=
 ORDERED_OBJS += \
 "./BeamSprite.o" \
 "./Clock.o" \
+"./ComponentSprite.o" \
 "./DAC5.o" \
 "./DashSprite.o" \
 "./LED.o" \
@@ -19,6 +20,7 @@ ORDERED_OBJS += \
 "./ST7735.o" \
 "./SlidePot.o" \
 "./SmallFont.o" \
+"./SolderSprite.o" \
 "./Sound.o" \
 "./Switch.o" \
 "./TExaS.o" \
@@ -162,9 +164,9 @@ ECE319K_Lab9H.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)
-	-$(RM) "BeamSprite.o" "Clock.o" "DAC5.o" "DashSprite.o" "LED.o" "Lab9HMain.o" "LaunchPad.o" "SPI.o" "ST7735.o" "SlidePot.o" "SmallFont.o" "Sound.o" "Switch.o" "TExaS.o" "Timer.o" "images/pipedreams/PipeSound.o" "ticlang/startup_mspm0g3507_ticlang.o" 
+	-$(RM) "BeamSprite.o" "Clock.o" "ComponentSprite.o" "DAC5.o" "DashSprite.o" "LED.o" "Lab9HMain.o" "LaunchPad.o" "SPI.o" "ST7735.o" "SlidePot.o" "SmallFont.o" "SolderSprite.o" "Sound.o" "Switch.o" "TExaS.o" "Timer.o" "images/pipedreams/PipeSound.o" "ticlang/startup_mspm0g3507_ticlang.o" 
 	-$(RM) "images/pipedreams/PipeSound.d" "ticlang/startup_mspm0g3507_ticlang.d" 
-	-$(RM) "BeamSprite.d" "Clock.d" "DAC5.d" "DashSprite.d" "LED.d" "Lab9HMain.d" "LaunchPad.d" "SPI.d" "ST7735.d" "SlidePot.d" "SmallFont.d" "Sound.d" "Switch.d" "TExaS.d" "Timer.d" 
+	-$(RM) "BeamSprite.d" "Clock.d" "ComponentSprite.d" "DAC5.d" "DashSprite.d" "LED.d" "Lab9HMain.d" "LaunchPad.d" "SPI.d" "ST7735.d" "SlidePot.d" "SmallFont.d" "SolderSprite.d" "Sound.d" "Switch.d" "TExaS.d" "Timer.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

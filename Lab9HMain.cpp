@@ -10,12 +10,17 @@
 #include "../inc/TExaS.h"
 #include "../inc/SlidePot.h"
 #include "../inc/DAC5.h"
+#include "BeamSprite.h"
+#include "Bitmaps.h"
 #include "SmallFont.h"
 #include "LED.h"
 #include "Switch.h"
 #include "Sound.h"
 #include "DashSprite.h"
 #include "Switches.h"
+#include "SolderSprite.h"
+#include "ComponentSprite.h"
+#include "nitinHelpers.h"
 
 extern "C" void __disable_irq(void);
 extern "C" void __enable_irq(void);
@@ -42,28 +47,73 @@ SlidePot Sensor(1640,190); // copy calibration from Lab 7
 
 uint16_t buffer[6360] = {0};
 DashSprite dash;
-BeamSprite beam1;
+BeamSprite beam1(0);
+BeamSprite beam2(-1);
+SolderSprite solderpoop(-1);
+ComponentSprite component(-1);
 Switches UpDownPause;
 uint32_t spData;
 bool stopped, lock;
 
+uint8_t getDiffLane(uint8_t avoidLane) {
+  uint8_t r = rand() % 2;
+  if (avoidLane == 0) {
+    if (!r) return 1;
+    else return 2;
+  } else if (avoidLane == 1) {
+    if (!r) return 0;
+    else return 2;
+  } else {
+    if (!r) return 0;
+    else return 1;
+  }
+}
+
 // games  engine runs at 30Hz
-void TIMG12_IRQHandler(void){uint32_t pos,msg;
+void TIMG12_IRQHandler(void){
   if((TIMG12->CPU_INT.IIDX) == 1){ // this will acknowledge
     GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
     GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
     dash.tick();
     beam1.tick();
-    if (dash.getLane() == beam1.lane && beam1.getBottomEdge() <= 20) {
-      dash.inBeam();
+    component.tick();
+    if (ComponentSprite::numCollected >= 2) solderpoop.tick();
+    if (ComponentSprite::numCollected >= 4) beam2.tick();
+    if (beam1.respawnFlag) {
+      if (!beam2.active && !solderpoop.active) beam1 = BeamSprite(0,rand()%3);
+      else if (beam2.active && !solderpoop.active) beam1 = BeamSprite(rand()%2, getDiffLane(beam2.lane));
+      else if (!beam2.active && solderpoop.active) beam1 = BeamSprite(0, getDiffLane(solderpoop.lane));
+      else beam1 = BeamSprite(rand()%2, 3-beam2.lane-solderpoop.lane);
+    } else if (beam2.respawnFlag) {
+      if (!beam1.active && !solderpoop.active) beam2 = BeamSprite(0,rand()%3);
+      else if (beam1.active && !solderpoop.active) beam2 = BeamSprite(rand()%2, getDiffLane(beam1.lane));
+      else if (!beam1.active && solderpoop.active) beam2 = BeamSprite(0, getDiffLane(solderpoop.lane));
+      else beam2 = BeamSprite(rand()%2, 3-beam1.lane-solderpoop.lane);
+    } else if (solderpoop.respawnFlag && !component.at_top) {
+      if (!beam1.active && !beam2.active) solderpoop = SolderSprite(rand()%3);
+      else if (beam1.active && !beam2.active) solderpoop = SolderSprite(getDiffLane(beam1.lane));
+      else if (!beam1.active && beam2.active) solderpoop = SolderSprite(getDiffLane(beam2.lane));
+      else solderpoop = SolderSprite(3-beam1.lane-beam2.lane);
+    } else if (component.respawnFlag && !solderpoop.at_top) {
+      component = ComponentSprite(rand() % 3);
     }
+
+
+    if ((dash.getLane() == beam1.lane && beam1.getBottomEdge() <= 20) || 
+          (dash.getLane() == beam2.lane && beam2.getBottomEdge() <= 20)) dash.inBeam();
+    if (dash.getLane() == solderpoop.lane && solderpoop.vertPos <= 5 && solderpoop.vertPos >= 0 && dash.vertPos <= 10) dash.trip();
+    if (dash.getLane() == component.lane && component.vertPos <= 5 && component.vertPos >= -5 && dash.vertPos <= 10) {
+      ComponentSprite::numCollected++;
+      component.lane = -1;
+    }
+    if (ComponentSprite::numCollected >= 6) dash.win = true;
     spData = Sensor.In();
     if (spData < 1000) dash.changeLane(0);
     else if (spData < 2800 && spData > 1200) dash.changeLane(1);
     else if (spData > 3000) dash.changeLane(2);
     UpDownPause.Poll();
     if (UpDownPause.upPressed) dash.jump();
-// game engine goes here
+    // game engine goes here
     // 1) sample slide pot
     // 2) read input switches
     // 3) move sprites
@@ -154,36 +204,76 @@ void DrawBeamToBuffer(BeamSprite beam) {
 }
 
 void bgToBuffer(uint8_t lane) {
-  for (int i = 0; i < 120; i++) {
-    for (int j = 0; j < 53; j++) {
+  for (uint8_t i = 0; i < 120; i++) {
+    for (uint8_t j = 0; j < 53; j++) {
       buffer[i * 53 + j] = bgPix(lane*53 + j, i);
     }
   }
 }
 
 void runnerToBuffer(void) {
-  for (uint16_t i = 0; i < 3180; i++) {
-    if (dash.image[i] != 0xF81F) buffer[i + 53*dash.vertPos] = dash.image[i];
+  if (!dash.flashOff) {
+    for (uint16_t i = 0; i < 3180; i++) {
+      if (dash.image[i] != 0xF81F) buffer[i + 53*dash.vertPos] = dash.image[i];
+    }
   }
 }
 
-void handleRunnerLeaveLane(void) {
-  int8_t prev = dash.prevLane();
-  if (prev >= 0) {
-    bgToBuffer(prev);
-    ST7735_DrawBitmap(prev*53, 127, buffer, 53, 120);
-    dash.acknowledgeLaneChange();
+void solderToBuffer(void) {
+  //buffer, start from max of 0 and bottom edge of sprite
+  // sprite, start from max of 0 - bottom edge of sprite and 0
+  //buffer, end at min of 2500 and buffer size - 53 - 
+  uint8_t bufferInd = MAX(0, solderpoop.vertPos);
+  uint8_t solderInd = MAX(0, 0-solderpoop.vertPos);
+  while (bufferInd < 120 && solderInd < 25){
+    for (uint8_t i = 0; i < 25; i++) {
+      if (solderPoop[solderInd*25+i] != 0xF81F) {
+        buffer[bufferInd*53+9+i] = solderPoop[solderInd*25 + i];
+      }
+    }
+    solderInd++;
+    bufferInd++;
   }
 }
+
+void componentToBuffer(void) {
+  uint8_t bufferInd = MAX(0, component.vertPos);
+  uint8_t componentInd = MAX(0, 0-component.vertPos);
+  while (bufferInd < 120 && componentInd < 25){
+    for (uint8_t i = 0; i < 25; i++) {
+      if (component.image[componentInd*25+i]!=0xF81F) {
+        buffer[bufferInd*53+9+i] = component.image[componentInd*25+i];
+      }
+    }
+    componentInd++;
+    bufferInd++;
+  }
+}
+
+// void handleRunnerLeaveLane(void) {
+//   int8_t prev = dash.prevLane();
+//   int8_t beam1Lane = beam1.lane;
+//   // int8_t beam2Lane = beam2.lane;
+//   if (prev >= 0) {
+//     for (uint8_t i = 0; i < 3; i++) {
+//       if (i != beam1Lane) {
+//         bgToBuffer(i);
+//         ST7735_DrawBitmap(i*53, 127, buffer, 53, 120);
+//         dash.acknowledgeLaneChange();
+//       }
+//     }
+//   }
+// }
 
 // use main2 to observe graphics
 int main(void){ // main2
-  srand(TIMG12->COUNTERREGS.CTR);
   TimerG12_Init();
   __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
   ST7735_InitPrintf();
+  srand(TIMG12->COUNTERREGS.CTR);
+  beam1 = BeamSprite(0,rand()%3);
   Sensor.Init();
   UpDownPause.Init();
     //note: if you colors are weird, see different options for
@@ -196,41 +286,46 @@ int main(void){ // main2
   TimerG12_IntArm(2666666, 0);
   __enable_irq();
 
-  uint8_t beamLane = beam1.lane;
-  bgToBuffer(beamLane);
-  uint8_t tmpLane;
-  int8_t prev;
   while(1){
     //check lane update flags, draw buffers based on position of runner, beam, etc.
-    if(dash.dead) __disable_irq();
+    if(dash.dead || dash.win) __disable_irq();
     if (stopped) {
       UpDownPause.Poll();
     }
     if (UpDownPause.pausePressed && !stopped && !lock) {__disable_irq(); stopped = true; lock = true;}
     else if (UpDownPause.pausePressed && stopped && !lock) {__enable_irq(); stopped = false; lock = true;}
     else if (!UpDownPause.pausePressed && lock) lock = false;
-    tmpLane = dash.getLane();
-    beamLane = beam1.lane;
-    if (beam1.getBottomEdge() >= -140) {
-      bgToBuffer(beamLane);
-      DrawBeamToBuffer(beam1);
-      if (tmpLane == beamLane) {
-        runnerToBuffer();
-        ST7735_DrawBitmap(beam1.getBeamLeftSide(), 127, buffer, 53, 120);
-      } else {
-        ST7735_DrawBitmap(beam1.getBeamLeftSide(), 127, buffer, 53, 120);
-        bgToBuffer(tmpLane);
-        runnerToBuffer();
-        ST7735_DrawBitmap(tmpLane*53, 127, buffer, 53, 120);
-      }
-      if (dash.prevLane() != beamLane) handleRunnerLeaveLane();
-    } 
-    else {
-      handleRunnerLeaveLane();
-      bgToBuffer(tmpLane);
-      runnerToBuffer();
-      ST7735_DrawBitmap(tmpLane*53, 127, buffer, 53, 120);
+
+    for (uint8_t i = 0; i < 3; i++) {
+      bgToBuffer(i);
+      if (beam1.lane == i) DrawBeamToBuffer(beam1);
+      else if (beam2.lane == i) DrawBeamToBuffer(beam2);
+      else if (solderpoop.lane == i && solderpoop.vertPos >= 5) solderToBuffer();
+      if (component.lane == i && component.vertPos >= 5) componentToBuffer();
+      if (dash.getLane() == i) runnerToBuffer();
+      if (solderpoop.lane == i && solderpoop.vertPos < 5) solderToBuffer();
+      if (component.lane == i && component.vertPos < 5) componentToBuffer();
+      ST7735_DrawBitmap(i*53, 127, buffer, 53, 120);
     }
+    // if (beam1.getBottomEdge() >= -140) {
+    //   bgToBuffer(beamLane);
+    //   DrawBeamToBuffer(beam1);
+    //   if (tmpLane == beamLane) {
+    //     runnerToBuffer();
+    //     ST7735_DrawBitmap(beam1.getBeamLeftSide(), 127, buffer, 53, 120);
+    //   } else {
+    //     ST7735_DrawBitmap(beam1.getBeamLeftSide(), 127, buffer, 53, 120);
+    //     bgToBuffer(tmpLane);
+    //     runnerToBuffer();
+    //     ST7735_DrawBitmap(tmpLane*53, 127, buffer, 53, 120);
+    //   }
+    // } 
+    // else {
+    //   bgToBuffer(tmpLane);
+    //   runnerToBuffer();
+    //   ST7735_DrawBitmap(tmpLane*53, 127, buffer, 53, 120);
+    // }
+    // handleRunnerLeaveLane();
   }
 }
 

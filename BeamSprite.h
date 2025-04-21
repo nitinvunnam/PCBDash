@@ -12,12 +12,15 @@ class BeamSprite {
     private:
         uint8_t tickDivider;
         int16_t depth; // this goes from -120 to 120
-        void init();
+        void init(uint8_t tickRate, int8_t lane);
+        uint8_t tickRate;
     public:
         int8_t lane;
+        bool active;
+        bool respawnFlag;
         const uint16_t * beam;
-        uint16_t backBuff[20] = {0};
-        BeamSprite();
+        BeamSprite(int8_t lane);
+        BeamSprite(uint8_t tickRate, int8_t lane);
         void tick();
         uint16_t getBeamLeftSide(){return lane * 53;};
         int16_t getBottomEdge(){return depth - 20;};

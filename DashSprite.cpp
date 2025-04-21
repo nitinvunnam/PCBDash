@@ -15,6 +15,7 @@ DashSprite::DashSprite() {
     dead = false;
     win = false;
     timeInMidHealth = 0;
+    flashOff = false;
 }
 
 void DashSprite::initHealth() {
@@ -27,6 +28,7 @@ void DashSprite::initHealth() {
 }
 
 void DashSprite::tick() {
+    flashOff = false;
     if (state < 2) {
         if (timeInState == 10) {
             state = state ? 0 : 1;
@@ -35,7 +37,7 @@ void DashSprite::tick() {
         else timeInState++;
         if (state && (health==2 || (timeInMidHealth/8)%2)) image = DashRunRightBMP;
         else if (!state && (health==2 || (timeInMidHealth/8)%2)) image = DashRunLeftBMP;
-        else image = blankRunner;
+        else flashOff = true;
     }
     else if (state == 2) {
         if (timeInState > 30) {
@@ -52,9 +54,12 @@ void DashSprite::tick() {
     if (health == 1 && timeInMidHealth > 80) health--;
     else if (health == 1 && timeInMidHealth == 0) health++;
 
-    if (!in_beam) timeInMidHealth--;
+    if (!in_beam && timeInMidHealth>0) timeInMidHealth--;
 
     in_beam = false;
+
+    if (!otherTrip) tripFlag = false;
+    otherTrip = false;
 
     if (!health) dead = true;
 
@@ -104,8 +109,17 @@ void DashSprite::jump() {
 void DashSprite::inBeam() {
     if (health == 2) {
         health--;
-        timeInMidHealth = 40;
+        timeInMidHealth += 40;
     }
     else if (health == 1) timeInMidHealth++;
     in_beam = true;
+}
+
+void DashSprite::trip() {
+    if (!tripFlag) {
+        health--;
+        timeInMidHealth += 40;
+    }
+    tripFlag = true;
+    otherTrip = true;
 }

@@ -1,16 +1,18 @@
 #include "BeamSprite.h"
 
-#define tickRate 0
 
-void BeamSprite::init(){
+
+void BeamSprite::init(uint8_t tickRate, int8_t lane){
+    active = false;
     depth = 120;
     tickDivider = 0;
-    this->lane = rand() % 3;
-    uint8_t r = rand() % 3;
-    if (r==0) {
+    this->lane = lane;
+    uint8_t color = rand() % 3;
+    this->tickRate = tickRate;
+    if (color==0) {
         beam = beamcolor1;
     }
-    else if (r==1) {
+    else if (color==1) {
         beam = beamcolor2;
     }
     else {
@@ -18,23 +20,23 @@ void BeamSprite::init(){
     }
 }
 
-BeamSprite::BeamSprite() {init();}
+BeamSprite::BeamSprite(int8_t lane) {init(rand() % 2, lane);}
+BeamSprite::BeamSprite(uint8_t tickRate, int8_t lane) {init(tickRate, lane);}
 
 void BeamSprite::tick() {
     if (lane >= 0) {
+        active = true;
         if (tickDivider >= tickRate) {
             tickDivider = 0;
             depth--;
-            if (depth <= -15) {
-                for (int i = 0; i < 20; i++) {
-                    backBuff[i] = bgPix(lane * 53 + 15 + i, 105 - (-14 - depth));
-                }
-            }
         } else tickDivider++;
 
-        if (depth < -120) lane = -1;
+        if (depth < -120) {
+            lane = -1;
+            active = false;
+        }
     } else {
         tickDivider++;
-        if (tickDivider>10) init();
+        if (tickDivider>20) respawnFlag = true;
     }
 }

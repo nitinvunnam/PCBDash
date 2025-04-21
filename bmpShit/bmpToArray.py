@@ -11,11 +11,11 @@
 from PIL import Image
 import numpy as np
 
-FILENAME = "IMG_0207.bmp"
-IGNORE_0 = 59294
+FILENAME = "bmpShit/button.bmp"
+IGNORE_0 = 65535
 IGNORE_1 = 65535
-IGNORE_2 = 61343
-IGNORE_3 = 61342
+IGNORE_2 = 65535
+IGNORE_3 = 65535
 
 def convertRGB(r, g, b):
   return (((b & 0xF8) >> 3) << 11) | (((g & 0xFC) >> 2) << 5) | (r >> 3)

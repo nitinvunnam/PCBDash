@@ -12,7 +12,9 @@ class DashSprite {
         uint8_t health;
         uint8_t timeInMidHealth;
         bool in_beam;
+        bool tripFlag, otherTrip;
     public:
+        bool flashOff;
         const uint16_t * image;
         uint8_t vertPos;
         bool dead;
@@ -26,6 +28,7 @@ class DashSprite {
         void acknowledgeLaneChange();
         void jump();
         void inBeam();
+        void trip();
 };
 
 #endif
