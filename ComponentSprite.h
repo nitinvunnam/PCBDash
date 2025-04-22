@@ -3,6 +3,7 @@
 class ComponentSprite {
   private:
     uint8_t tickDivider;
+    uint8_t flashDivider;
   public:
     int8_t lane;
     bool respawnFlag;

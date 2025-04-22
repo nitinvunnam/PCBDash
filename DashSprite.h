@@ -12,9 +12,11 @@ class DashSprite {
         uint8_t health;
         uint8_t timeInMidHealth;
         bool in_beam;
-        bool tripFlag, otherTrip;
+        bool otherTrip;
     public:
         bool flashOff;
+        bool in_beam_flag;
+        bool tripFlag;
         const uint16_t * image;
         uint8_t vertPos;
         bool dead;
@@ -29,6 +31,7 @@ class DashSprite {
         void jump();
         void inBeam();
         void trip();
+        void healthOff();
 };
 
 #endif

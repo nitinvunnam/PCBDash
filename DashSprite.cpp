@@ -16,6 +16,10 @@ DashSprite::DashSprite() {
     win = false;
     timeInMidHealth = 0;
     flashOff = false;
+    in_beam = false;
+    in_beam_flag = false;
+    tripFlag = false;
+    otherTrip = false;
 }
 
 void DashSprite::initHealth() {
@@ -25,6 +29,11 @@ void DashSprite::initHealth() {
     IOMUX->SECCFG.PINCM[PB24INDEX] = 0x00000081;
     GPIOA->DOE31_0 |= (fullHealth + midHealth);
     GPIOB->DOE31_0 |= zeroHealth;
+}
+
+void DashSprite::healthOff() {
+    GPIOA->DOUTCLR31_0 |= (fullHealth + midHealth);
+    GPIOB->DOUTCLR31_0 |= zeroHealth;
 }
 
 void DashSprite::tick() {
@@ -51,11 +60,13 @@ void DashSprite::tick() {
         }
     }
 
-    if (health == 1 && timeInMidHealth > 80) health--;
+    if (health == 1 && timeInMidHealth > 240) health--;
     else if (health == 1 && timeInMidHealth == 0) health++;
 
-    if (!in_beam && timeInMidHealth>0) timeInMidHealth--;
-
+    if (!in_beam && timeInMidHealth>0) {
+        in_beam_flag = false;
+        timeInMidHealth--;
+    }
     in_beam = false;
 
     if (!otherTrip) tripFlag = false;
@@ -109,16 +120,18 @@ void DashSprite::jump() {
 void DashSprite::inBeam() {
     if (health == 2) {
         health--;
-        timeInMidHealth += 40;
+        timeInMidHealth += 200;
     }
-    else if (health == 1) timeInMidHealth++;
+    else if (health == 1 && in_beam_flag) timeInMidHealth++;
+    else if (health == 1) health--;
+    in_beam_flag = true;
     in_beam = true;
 }
 
 void DashSprite::trip() {
     if (!tripFlag) {
         health--;
-        timeInMidHealth += 40;
+        timeInMidHealth += 150;
     }
     tripFlag = true;
     otherTrip = true;

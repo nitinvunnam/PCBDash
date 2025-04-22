@@ -1,5 +1,4 @@
 #include "nitinHelpers.h"
-
 void drawHomeScreen(void){
   ST7735_FillScreen(0x4D0B);
   ST7735_DrawBitmap(40, 85, PcbStartScreen, 80, 80);
@@ -8,8 +7,12 @@ void drawHomeScreen(void){
 void drawGameOver(void){
   ST7735_FillScreen(0x4D0B);
   if(isSpanish){
-    ST7735_SetCursor(0, 0);
-    ST7735_OutString((char*)"FIN DEL JUEGO ¡MEJOR SUERTE LA PRÓXIMA VEZ!");
+    ST7735_SetCursor(3,3);
+    ST7735_OutString((char*)"Fin Del Juego. \xADMejor", ST7735_BLACK, PCBGreen);
+    ST7735_SetCursor(3,4);
+    ST7735_OutString((char*)"Suerte la Pr\xA2xima Vez!", ST7735_BLACK, PCBGreen);
+    ST7735_SetCursor(3,10);
+    ST7735_OutString((char*)"(Presione al Derecho)", ST7735_BLACK, PCBGreen);
     for(int i = 0; i < 2430; i++){
       if(ReiniciarButton[i] != 0xFFFF){
       buffer[i] = ReiniciarButton[i];
@@ -19,15 +22,16 @@ void drawGameOver(void){
       }
     }
 
-    ST7735_DrawBitmap(20, 92, buffer, 81, 30);
-    for(int i = 0; i < 2430; i++){
-    buffer[i] = 0;
-    }
+    ST7735_DrawBitmap(40, 85, buffer, 81, 30);
   }
   else{
 
-    ST7735_SetCursor(0, 0);
-    ST7735_OutString((char*)"GAME OVER, BETTER LUCK NEXT TIME");
+    ST7735_SetCursor(5, 3);
+    ST7735_OutString((char*)"GAME OVER, BETTER", ST7735_BLACK, PCBGreen);
+    ST7735_SetCursor(6, 4);
+    ST7735_OutString((char*)"LUCK NEXT TIME!", ST7735_BLACK, PCBGreen);
+    ST7735_SetCursor(4, 10);
+    ST7735_OutString((char*)"(Press to the Right)", ST7735_BLACK, PCBGreen);
     for(int i = 0; i < 2270; i++){
       if(RestartButton[i] != 0xFFFF){
       buffer[i] = RestartButton[i];
@@ -37,10 +41,7 @@ void drawGameOver(void){
       }
     }
 
-    ST7735_DrawBitmap(20, 92, buffer, 74, 30);
-    for(int i = 0; i < 2270; i++){
-      buffer[i] = 0;
-    }
+    ST7735_DrawBitmap(43, 85, buffer, 74, 30);
   }
 
 }
@@ -54,9 +55,8 @@ void outlineButton(int16_t x, int16_t y, int16_t w, int16_t h){
   }
 }
 
-
 void drawMainButtons(void){
-  for(uint16_t i = 0; i < 1960; i++){
+  for(uint16_t i = 0; i < 1980; i++){
     if(StartButton[i] != 0xFFFF){
       buffer[i] = StartButton[i];
     }
@@ -75,10 +75,6 @@ void drawMainButtons(void){
     }
   }
   ST7735_DrawBitmap(1, 120, buffer , 90, 30);
-
-  for(int i = 0; i < 2700; i++){
-    buffer[i] = 0;
-  }
 }
 
 void drawSpanishButtons(void){
@@ -120,6 +116,7 @@ void PcbOutline(uint8_t index){
   }
 
 }
+
 
 void PCBScreen(void){
   ST7735_FillScreen(0xFFFF);

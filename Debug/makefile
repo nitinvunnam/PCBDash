@@ -13,18 +13,16 @@ ORDERED_OBJS += \
 "./ComponentSprite.o" \
 "./DAC5.o" \
 "./DashSprite.o" \
-"./LED.o" \
 "./Lab9HMain.o" \
 "./LaunchPad.o" \
 "./SPI.o" \
 "./ST7735.o" \
 "./SlidePot.o" \
-"./SmallFont.o" \
 "./SolderSprite.o" \
 "./Sound.o" \
-"./Switch.o" \
 "./TExaS.o" \
 "./Timer.o" \
+"./nitinHelpers.o" \
 "./images/pipedreams/PipeSound.o" \
 "./ticlang/startup_mspm0g3507_ticlang.o" \
 "../mspm0g3507.cmd" \
@@ -164,9 +162,9 @@ ECE319K_Lab9H.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)
-	-$(RM) "BeamSprite.o" "Clock.o" "ComponentSprite.o" "DAC5.o" "DashSprite.o" "LED.o" "Lab9HMain.o" "LaunchPad.o" "SPI.o" "ST7735.o" "SlidePot.o" "SmallFont.o" "SolderSprite.o" "Sound.o" "Switch.o" "TExaS.o" "Timer.o" "images/pipedreams/PipeSound.o" "ticlang/startup_mspm0g3507_ticlang.o" 
+	-$(RM) "BeamSprite.o" "Clock.o" "ComponentSprite.o" "DAC5.o" "DashSprite.o" "Lab9HMain.o" "LaunchPad.o" "SPI.o" "ST7735.o" "SlidePot.o" "SolderSprite.o" "Sound.o" "TExaS.o" "Timer.o" "nitinHelpers.o" "images/pipedreams/PipeSound.o" "ticlang/startup_mspm0g3507_ticlang.o" 
 	-$(RM) "images/pipedreams/PipeSound.d" "ticlang/startup_mspm0g3507_ticlang.d" 
-	-$(RM) "BeamSprite.d" "Clock.d" "ComponentSprite.d" "DAC5.d" "DashSprite.d" "LED.d" "Lab9HMain.d" "LaunchPad.d" "SPI.d" "ST7735.d" "SlidePot.d" "SmallFont.d" "SolderSprite.d" "Sound.d" "Switch.d" "TExaS.d" "Timer.d" 
+	-$(RM) "BeamSprite.d" "Clock.d" "ComponentSprite.d" "DAC5.d" "DashSprite.d" "Lab9HMain.d" "LaunchPad.d" "SPI.d" "ST7735.d" "SlidePot.d" "SolderSprite.d" "Sound.d" "TExaS.d" "Timer.d" "nitinHelpers.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

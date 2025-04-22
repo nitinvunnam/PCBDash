@@ -11,7 +11,7 @@
 from PIL import Image
 import numpy as np
 
-FILENAME = "bmpShit/button.bmp"
+FILENAME = "bmpShit/LEDFlash.bmp"
 IGNORE_0 = 65535
 IGNORE_1 = 65535
 IGNORE_2 = 65535

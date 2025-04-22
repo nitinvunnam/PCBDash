@@ -11,7 +11,8 @@ class Switches {
         bool upPressed;
         bool downPressed;
         bool pausePressed;
-        Switches() {upPressed = false; downPressed = false; pausePressed = false;};
+        bool somethingPressed;
+        Switches() {upPressed = false; downPressed = false; pausePressed = false; somethingPressed = false;};
         void Init() {
             IOMUX->SECCFG.PINCM[PB12INDEX] = 0x00040081;
             IOMUX->SECCFG.PINCM[PB16INDEX] = 0x00040081;
@@ -21,6 +22,7 @@ class Switches {
             upPressed = (1<<12) & GPIOB->DIN31_0;
             downPressed = (1<<17) & GPIOB->DIN31_0;
             pausePressed = (1<<16) & GPIOB->DIN31_0;
+            somethingPressed = upPressed || downPressed || pausePressed;
         }
 };
 

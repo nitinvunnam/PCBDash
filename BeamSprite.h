@@ -18,7 +18,8 @@ class BeamSprite {
         int8_t lane;
         bool active;
         bool respawnFlag;
-        const uint16_t * beam;
+        uint16_t color0;
+        uint16_t color1;
         BeamSprite(int8_t lane);
         BeamSprite(uint8_t tickRate, int8_t lane);
         void tick();

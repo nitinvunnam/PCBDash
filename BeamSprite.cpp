@@ -10,13 +10,16 @@ void BeamSprite::init(uint8_t tickRate, int8_t lane){
     uint8_t color = rand() % 3;
     this->tickRate = tickRate;
     if (color==0) {
-        beam = beamcolor1;
+        color0 = 50173;
+        color1 = 41719;
     }
     else if (color==1) {
-        beam = beamcolor2;
+        color0 = 57344;
+        color1 = 45056;
     }
     else {
-        beam = beamcolor3;
+        color0 = 1021;
+        color1 = 1045;
     }
 }
 
