@@ -31,10 +31,10 @@ Lab9HMain.o: ../Lab9HMain.cpp ../../inc/Clock.h ../../inc/TExaS.h \
  /Applications/ti/mspm0_sdk_2_03_00_07/source/ti/devices/msp/peripherals/m0p/hw_debugss.h \
  /Applications/ti/mspm0_sdk_2_03_00_07/source/ti/devices/msp/peripherals/m0p/hw_sysctl.h \
  /Applications/ti/mspm0_sdk_2_03_00_07/source/ti/devices/msp/peripherals/m0p/sysctl/hw_sysctl_mspm0g1x0x_g3x0x.h \
- ../../inc/SlidePot.h ../../inc/DAC5.h ../BeamSprite.h ../Bitmaps.h \
- ../../inc/Timer.h ../../inc/ST7735.h ../Sound.h ../DashSprite.h \
- ../Switches.h ../../inc/LaunchPad.h ../SolderSprite.h \
- ../ComponentSprite.h ../nitinHelpers.h
+ ../../inc/SlidePot.h ../BeamSprite.h ../Bitmaps.h ../../inc/Timer.h \
+ ../../inc/ST7735.h ../Sound.h ../DashSprite.h ../Switches.h \
+ ../../inc/LaunchPad.h ../SolderSprite.h ../ComponentSprite.h \
+ ../nitinHelpers.h ../Sounds.h
 ../../inc/Clock.h:
 ../../inc/TExaS.h:
 /Applications/ti/mspm0_sdk_2_03_00_07/source/ti/devices/msp/msp.h:
@@ -68,7 +68,6 @@ Lab9HMain.o: ../Lab9HMain.cpp ../../inc/Clock.h ../../inc/TExaS.h \
 /Applications/ti/mspm0_sdk_2_03_00_07/source/ti/devices/msp/peripherals/m0p/hw_sysctl.h:
 /Applications/ti/mspm0_sdk_2_03_00_07/source/ti/devices/msp/peripherals/m0p/sysctl/hw_sysctl_mspm0g1x0x_g3x0x.h:
 ../../inc/SlidePot.h:
-../../inc/DAC5.h:
 ../BeamSprite.h:
 ../Bitmaps.h:
 ../../inc/Timer.h:
@@ -80,3 +79,4 @@ Lab9HMain.o: ../Lab9HMain.cpp ../../inc/Clock.h ../../inc/TExaS.h \
 ../SolderSprite.h:
 ../ComponentSprite.h:
 ../nitinHelpers.h:
+../Sounds.h:

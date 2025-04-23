@@ -7,33 +7,85 @@
 #define SOUND_H
 #include <stdint.h>
 
-// initialize a 11kHz SysTick, however no sound should be started
-// initialize any global variables
-// Initialize the 5 bit DAC
-// This is called once
-void Sound_Init(void);
-
-//******* Sound_Start ************
-// This function does not output to the DAC. 
-// Rather, it sets a pointer and counter, and then enables the SysTick interrupt.
-// It starts the sound, and the SysTick ISR does the output
-// feel free to change the parameters
-// Sound should play once and stop
-// Input: pt is a pointer to an array of DAC outputs
-//        count is the length of the array
+#include <ti/devices/msp/msp.h>
+#define PB0INDEX  11 // UART0_TX  SPI1_CS2  TIMA1_C0  TIMA0_C2
+#define PB1INDEX  12 // UART0_RX  SPI1_CS3  TIMA1_C1  TIMA0_C2N
+#define PB2INDEX  14 // UART3_TX  UART2_CTS I2C1_SCL  TIMA0_C3  UART1_CTS TIMG6_C0  TIMA1_C0
+#define PB3INDEX  15 // UART3_RX  UART2_RTS I2C1_SDA  TIMA0_C3N UART1_RTS TIMG6_C1  TIMA1_C1
+#define PB4INDEX  16 // UART1_TX  UART3_CTS TIMA1_C0  TIMA0_C2  TIMA1_C0N
+#define outMask   0b11111
+// **************DAC5_Init*********************
+// Initialize 5-bit DAC, called once
+// Input: none
 // Output: none
-// special cases: as you wish to implement
-void Sound_Start(const uint8_t *pt, uint32_t count);
+void DAC5_Init(void){
+// Assumes LaunchPad_Init has been called
+// I.e., PortB has already been reset and activated (do not reset PortB here again)
+     // write this
+     IOMUX->SECCFG.PINCM[PB0INDEX] = 0x00000081;
+     IOMUX->SECCFG.PINCM[PB1INDEX] = 0x00000081;
+     IOMUX->SECCFG.PINCM[PB2INDEX] = 0x00000081;
+     IOMUX->SECCFG.PINCM[PB3INDEX] = 0x00000081;
+     IOMUX->SECCFG.PINCM[PB4INDEX] = 0x00000081;
+     GPIOB->DOE31_0 = outMask | GPIOB->DOE31_0;
+}
 
-// following 8 functions do not output to the DAC
-// they configure pointers/counters and initiate the sound by calling Sound_Start
-void Sound_Shoot(void);
-void Sound_Killed(void);
-void Sound_Explosion(void);
-void Sound_Fastinvader1(void);
-void Sound_Fastinvader2(void);
-void Sound_Fastinvader3(void);
-void Sound_Fastinvader4(void);
-void Sound_Highpitch(void);
+// **************DAC5_Out*********************
+// output to DAC5
+// Input: 5-bit data, 0 to 31
+// Input=n is converted to n*3.3V/31
+// Output: none
+// Note: this solution must be friendly
+void DAC5_Out(uint8_t data){
+     // write this
+     uint32_t dout = (GPIOB->DOUT31_0 & ~outMask) | data;
+     GPIOB->DOUT31_0 = dout;
+}
+
+uint16_t ind;
+uint16_t bigCount;
+const uint8_t* currSound;
+
+void Sound_Init(){
+  // write this
+  DAC5_Init();
+  SysTick->CTRL = 0x00;
+  SysTick->LOAD = 9999;
+  SCB->SHP[1] = (SCB->SHP[1]&(~0xC0000000));
+  SysTick->VAL = 0;
+  ind = 0;
+  bigCount = 0;
+}
+
+//80000000Hz -> 8000Hz = 10000 period
+
+void Sound_Start(const uint8_t *pt, uint16_t count){
+    // set reload value
+    // write any value to VAL, cause reload
+    // write this
+    currSound = pt;
+    ind = 0;
+    bigCount = count;
+    SysTick->VAL = 0;
+    SysTick->CTRL = 0x7;
+}
+
+void Sound_Stop(void) {
+  SysTick->CTRL = 0;
+  ind = 0;
+  currSound = NULL;
+  bigCount = 0;
+}
+
+// Interrupt service routine
+// Executed every 12.5ns*(period)
+extern "C" void SysTick_Handler(void){
+    if (!bigCount) return;
+  // write this
+  // output one value to DAC
+  DAC5_Out(currSound[ind]);
+  if (ind < bigCount-1) ind++; // increment until array bounds
+  else SysTick->CTRL = 0;
+}
 
 #endif

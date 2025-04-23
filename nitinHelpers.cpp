@@ -1,4 +1,5 @@
 #include "nitinHelpers.h"
+
 void drawHomeScreen(void){
   ST7735_FillScreen(0x4D0B);
   ST7735_DrawBitmap(40, 85, PcbStartScreen, 80, 80);
@@ -11,18 +12,20 @@ void drawGameOver(void){
     ST7735_OutString((char*)"Fin Del Juego. \xADMejor", ST7735_BLACK, PCBGreen);
     ST7735_SetCursor(3,4);
     ST7735_OutString((char*)"Suerte la Pr\xA2xima Vez!", ST7735_BLACK, PCBGreen);
-    ST7735_SetCursor(3,10);
-    ST7735_OutString((char*)"(Presione al Derecho)", ST7735_BLACK, PCBGreen);
-    for(int i = 0; i < 2430; i++){
-      if(ReiniciarButton[i] != 0xFFFF){
-      buffer[i] = ReiniciarButton[i];
-      }
-      else{
-        buffer[i] = 0x4D0B;
-      }
-    }
+    ST7735_SetCursor(1,7);
+    ST7735_OutString((char*)"Presione al Derecho Para", ST7735_BLACK, PCBGreen);
+    ST7735_SetCursor(5,8);
+    ST7735_OutString((char*)" Tratar Otra Vez", ST7735_BLACK, PCBGreen);
+    // for(int i = 0; i < 2430; i++){
+    //   if(ReiniciarButton[i] != 0xFFFF){
+    //   buffer[i] = ReiniciarButton[i];
+    //   }
+    //   else{
+    //     buffer[i] = 0x4D0B;
+    //   }
+    // }
 
-    ST7735_DrawBitmap(40, 85, buffer, 81, 30);
+    // ST7735_DrawBitmap(40, 85, buffer, 81, 30);
   }
   else{
 
@@ -30,18 +33,20 @@ void drawGameOver(void){
     ST7735_OutString((char*)"GAME OVER, BETTER", ST7735_BLACK, PCBGreen);
     ST7735_SetCursor(6, 4);
     ST7735_OutString((char*)"LUCK NEXT TIME!", ST7735_BLACK, PCBGreen);
-    ST7735_SetCursor(4, 10);
-    ST7735_OutString((char*)"(Press to the Right)", ST7735_BLACK, PCBGreen);
-    for(int i = 0; i < 2270; i++){
-      if(RestartButton[i] != 0xFFFF){
-      buffer[i] = RestartButton[i];
-      }
-      else{
-        buffer[i] = 0x4D0B;
-      }
-    }
+    ST7735_SetCursor(4, 7);
+    ST7735_OutString((char*)"Press to the Right", ST7735_BLACK, PCBGreen);
+    ST7735_SetCursor(7, 8);
+    ST7735_OutString((char*)"to Try Again", ST7735_BLACK, PCBGreen);
+    // for(int i = 0; i < 2270; i++){
+    //   if(RestartButton[i] != 0xFFFF){
+    //   buffer[i] = RestartButton[i];
+    //   }
+    //   else{
+    //     buffer[i] = 0x4D0B;
+    //   }
+    // }
 
-    ST7735_DrawBitmap(43, 85, buffer, 74, 30);
+    // ST7735_DrawBitmap(43, 85, buffer, 74, 30);
   }
 
 }
@@ -119,7 +124,80 @@ void PcbOutline(uint8_t index){
 
 
 void PCBScreen(void){
-  ST7735_FillScreen(0xFFFF);
-  ST7735_DrawBitmap(19, 108, PCB, 121, 90);
+  ST7735_DrawBitmap(35, 108, PCB, 121, 90);
+  for(int i = 0; i < 6; i++){
+    if(componentPlaced[i]){
+      drawComponent(i);
+    }
+  }
   PcbOutline(selected);
+}
+
+void drawComponent(uint8_t index){
+  switch(index){
+    case 0:
+      ST7735_FillRect(49, 26, 7, 4, 0x4C7B);
+      break;
+    case 1:
+      ST7735_FillRect(49, 33, 7, 4, 0x4C7B);
+      break;
+    case 2:
+      ST7735_FillRect(63, 82, 4, 4, 0x52AA);
+      break;
+    case 3:
+      ST7735_FillRect(63, 88, 4, 4, 0x52AA);
+      break;
+    case 4:
+      ST7735_FillSmallCircle(138, 26, 0x001F);
+      break;
+    case 5:
+      ST7735_FillSmallCircle(131, 26, 0x001F);
+      break;
+  }
+}
+
+void drawEndScreen(void){
+  ST7735_FillScreen(0x4D0B);
+  if(isSpanish){
+    ST7735_SetCursor(6,3);
+    ST7735_OutString((char*)"\xAD", ST7735_BLACK, PCBGreen);
+    ST7735_OutString((char*)"Eres Campe\xA2n!", ST7735_BLACK, PCBGreen);
+    ST7735_SetCursor(4,4);
+    ST7735_OutString((char*)"\xADGracias Por Jugar!", ST7735_BLACK, PCBGreen);
+    ST7735_SetCursor(1,7);
+    ST7735_OutString((char*)"Presione al Derecho Para", ST7735_BLACK, PCBGreen);
+    ST7735_SetCursor(6,8);
+    ST7735_OutString((char*)"Jugar Otra Vez", ST7735_BLACK, PCBGreen);
+    // for(int i = 0; i < 2430; i++){
+    //   if(ReiniciarButton[i] != 0xFFFF){
+    //   buffer[i] = ReiniciarButton[i];
+    //   }
+    //   else{
+    //     buffer[i] = 0x4D0B;
+    //   }
+    // }
+
+    // ST7735_DrawBitmap(40, 85, buffer, 81, 30);
+  }
+  else{
+    ST7735_SetCursor(5, 3);
+    ST7735_OutString((char*)"CONGRATS! YOU WON!", ST7735_BLACK, PCBGreen);
+    ST7735_SetCursor(3, 4);
+    ST7735_OutString((char*)"Thank you for playing.", ST7735_BLACK, PCBGreen);
+    ST7735_SetCursor(5, 7);
+    ST7735_OutString((char*)"Press to the Right", ST7735_BLACK, PCBGreen);
+    ST7735_SetCursor(7, 8);
+    ST7735_OutString((char*)"to Play Again", ST7735_BLACK, PCBGreen);
+
+    // for(int i = 0; i < 2270; i++){
+    //   if(RestartButton[i] != 0xFFFF){
+    //   buffer[i] = RestartButton[i];
+    //   }
+    //   else{
+    //     buffer[i] = 0x4D0B;
+    //   }
+    // }
+
+    // ST7735_DrawBitmap(43, 85, buffer, 74, 30);
+  }
 }
