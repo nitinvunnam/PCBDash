@@ -352,6 +352,7 @@ int main(void){ // main2
           drawBg();
           __enable_irq();
           counter = 50;
+          initText = true;
         }
         if (!buttons.somethingPressed) lock = false;
 
@@ -362,7 +363,6 @@ int main(void){ // main2
           solderpoop = SolderSprite(-1);
           component = ComponentSprite(-1);
           ComponentSprite::numCollected = 0;
-          initText = true;
           if (dash.dead) {
             currentState = gameOver;
             dash = DashSprite();
@@ -680,57 +680,3 @@ int main(void){ // main2
     }
   }
 }
-
-// // use main4 to test sound outputs
-// int main4(void){ uint32_t last=0,now;
-//   __disable_irq();
-//   PLL_Init(); // set bus speed
-//   LaunchPad_Init();
-//   Switch_Init(); // initialize switches
-//   LED_Init(); // initialize LED
-//   Sound_Init();  // initialize sound
-//   TExaS_Init(ADC0,6,0); // ADC1 channel 6 is PB20, TExaS scope
-//   __enable_irq();
-//   while(1){
-//     now = Switch_In(); // one of your buttons
-//     if((last == 0)&&(now == 1)){
-//       Sound_Shoot(); // call one of your sounds
-//     }
-//     if((last == 0)&&(now == 2)){
-//       Sound_Killed(); // call one of your sounds
-//     }
-//     if((last == 0)&&(now == 4)){
-//       Sound_Explosion(); // call one of your sounds
-//     }
-//     if((last == 0)&&(now == 8)){
-//       Sound_Fastinvader1(); // call one of your sounds
-//     }
-//     // modify this to test all your sounds
-//   }
-// }
-// // ALL ST7735 OUTPUT MUST OCCUR IN MAIN
-// int main5(void){ // final main
-//   __disable_irq();
-//   PLL_Init(); // set bus speed
-//   LaunchPad_Init();
-//   ST7735_InitPrintf();
-//     //note: if you colors are weird, see different options for
-//     // ST7735_InitR(INITR_REDTAB); inside ST7735_InitPrintf()
-//   ST7735_FillScreen(ST7735_BLACK);
-//   Sensor.Init(); // PB18 = ADC1 channel 5, slidepot
-//   Switch_Init(); // initialize switches
-//   LED_Init();    // initialize LED
-//   Sound_Init();  // initialize sound
-//   TExaS_Init(0,0,&TExaS_LaunchPadLogicPB27PB26); // PB27 and PB26
-//     // initialize interrupts on TimerG12 at 30 Hz
-  
-//   // initialize all data structures
-//   __enable_irq();
-
-//   while(1){
-//     // wait for semaphore
-//        // clear semaphore
-//        // update ST7735R
-//     // check for end game or level switch
-//   }
-// }
