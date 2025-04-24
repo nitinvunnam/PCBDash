@@ -43,6 +43,7 @@ bool componentPlaced[6] = {false, false, false, false, false, false};
 uint16_t buffer[5565];
 bool isSpanish = false;
 uint8_t selected = 0;
+bool initText;
 
 DashSprite dash;
 BeamSprite beam1(0);
@@ -355,13 +356,13 @@ int main(void){ // main2
         if (!buttons.somethingPressed) lock = false;
 
         if (dash.dead || dash.win) {
-          Sound_Stop();
           __disable_irq();
           beam1 = BeamSprite(0, rand()%3);
           beam2 = BeamSprite(-1);
           solderpoop = SolderSprite(-1);
           component = ComponentSprite(-1);
           ComponentSprite::numCollected = 0;
+          initText = true;
           if (dash.dead) {
             currentState = gameOver;
             dash = DashSprite();
@@ -391,7 +392,8 @@ int main(void){ // main2
           outStr += to_string(ComponentSprite::numCollected);
         }
         else counter++;
-        if (outStr != prevStr) {
+        if (outStr != prevStr || initText) {
+          initText = false;
           ST7735_FillRect(0,0,160,23,ST7735_BLACK);
           ST7735_SetCursor(0, 0);
           ST7735_OutString(const_cast<char*>(outStr.c_str()), ST7735_WHITE, ST7735_BLACK);
@@ -434,6 +436,7 @@ int main(void){ // main2
           }
           dash.healthOff();
           currentState = homeState;
+          Sound_Stop();
         }
         break;
 
@@ -491,6 +494,7 @@ int main(void){ // main2
       case placeState:
         if(!inPlaceState) {
           ST7735_FillScreen(0XFFFF);
+          Sound_Stop();
           PCBScreen();
           inPlaceState = true;
         }
@@ -670,6 +674,7 @@ int main(void){ // main2
           }
           dash.healthOff();
           currentState = homeState;
+          Sound_Stop();
         }
         break;
     }
